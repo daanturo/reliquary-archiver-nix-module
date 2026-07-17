@@ -1,0 +1,120 @@
+{
+  "nodes": {
+    "fenix": {
+      "inputs": {
+        "nixpkgs": [
+          "naersk",
+          "nixpkgs"
+        ],
+        "rust-analyzer-src": "rust-analyzer-src"
+      },
+      "locked": {
+        "lastModified": 1752475459,
+        "narHash": "sha256-z6QEu4ZFuHiqdOPbYss4/Q8B0BFhacR8ts6jO/F/aOU=",
+        "owner": "nix-community",
+        "repo": "fenix",
+        "rev": "bf0d6f70f4c9a9cf8845f992105652173f4b617f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "fenix",
+        "type": "github"
+      }
+    },
+    "naersk": {
+      "inputs": {
+        "fenix": "fenix",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782220280,
+        "narHash": "sha256-thLTFbp9D5Qknmh8q/v4FRpLGphUSijT3E86cbLYTXo=",
+        "owner": "nix-community",
+        "repo": "naersk",
+        "rev": "9aa07bb0256d300219b30622d2454e85f7f3667e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "naersk",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1784160687,
+        "narHash": "sha256-iYL/bixrb6FlHFu/gIuBYzq6c6lM5AAXsXNSWXtIgQc=",
+        "rev": "4382ed2b7a6839d4280a9b386db49cbc5907414d",
+        "revCount": 1009383,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1009383%2Brev-4382ed2b7a6839d4280a9b386db49cbc5907414d/019f6c11-ad78-7500-a194-d18a5bad0fbe/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/NixOS/nixpkgs/0"
+      }
+    },
+    "reliquary-archiver": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784253090,
+        "narHash": "sha256-VYSwLtfXasFzNw8Im81PlmKO1wl+xPHICac2bmmawS4=",
+        "ref": "refs/heads/main",
+        "rev": "bf6ac1c34b8085d6d7bf2e9e60c16e2793338135",
+        "revCount": 329,
+        "type": "git",
+        "url": "https://github.com/IceDynamix/reliquary-archiver.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://github.com/IceDynamix/reliquary-archiver.git"
+      }
+    },
+    "root": {
+      "inputs": {
+        "naersk": "naersk",
+        "nixpkgs": "nixpkgs",
+        "reliquary-archiver": "reliquary-archiver",
+        "turnbasedgamedata": "turnbasedgamedata"
+      }
+    },
+    "rust-analyzer-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1752428706,
+        "narHash": "sha256-EJcdxw3aXfP8Ex1Nm3s0awyH9egQvB2Gu+QEnJn2Sfg=",
+        "owner": "rust-lang",
+        "repo": "rust-analyzer",
+        "rev": "591e3b7624be97e4443ea7b5542c191311aa141d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rust-lang",
+        "ref": "nightly",
+        "repo": "rust-analyzer",
+        "type": "github"
+      }
+    },
+    "turnbasedgamedata": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784212708,
+        "narHash": "sha256-4LfU6FK9cguyduMRPNNj4NKJ7Flpzhtaude3R1jIXcY=",
+        "ref": "refs/heads/main",
+        "rev": "fd978d6ef09f941fba644c731ab54abd6f7c3568",
+        "revCount": 88,
+        "type": "git",
+        "url": "https://gitlab.com/Dimbreath/turnbasedgamedata.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://gitlab.com/Dimbreath/turnbasedgamedata.git"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

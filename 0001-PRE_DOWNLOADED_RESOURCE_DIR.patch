@@ -1,0 +1,46 @@
+From 41fa653aedf8f8af52eca8b01ba679a5b47311bd Mon Sep 17 00:00:00 2001
+Subject: [PATCH] PRE_DOWNLOADED_RESOURCE_DIR
+
+---
+ build.rs | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+diff --git a/build.rs b/build.rs
+index 5f1b4fb..f8cbb5f 100644
+--- a/build.rs
++++ b/build.rs
+@@ -111,9 +111,10 @@ fn save_text_map(hashes: &HashSet<TextMapEntry>, language: &str) {
+     let hashes: HashSet<String> = hashes.iter().map(|k| k.Hash.to_string()).collect();
+ 
+     let file_name = format!("TextMap{language}.json");
++    let base_dir = env::var("PRE_DOWNLOADED_RESOURCE_DIR").expect("PRE_DOWNLOADED_RESOURCE_DIR environment variable must be set");
+ 
+-    let text_map_url = format!("{BASE_RESOURCE_URL}/TextMap/{file_name}");
+-    let text_map: HashMap<String, String> = download_as_json::<HashMap<String, String>>(&text_map_url)
++    let text_map_path = format!("{base_dir}/TextMap/{file_name}");
++    let text_map: HashMap<String, String> = download_as_json::<HashMap<String, String>>(&text_map_path)
+         .into_iter()
+         .filter(|(k, _)| hashes.contains(k))
+         .collect();
+@@ -126,15 +127,13 @@ fn resource_url<T: ResourceMap>() -> String {
+ }
+ 
+ fn resource_url_of(name: &str) -> String {
+-    format!("{BASE_RESOURCE_URL}/ExcelOutput/{name}")
++    let base_dir = env::var("PRE_DOWNLOADED_RESOURCE_DIR").expect("PRE_DOWNLOADED_RESOURCE_DIR environment variable must be set");
++    format!("{base_dir}/ExcelOutput/{name}")
+ }
+ 
+ fn download_as_json<T: DeserializeOwned>(url: &str) -> T {
+-    ureq::get(url)
+-        .call()
+-        .unwrap()
+-        .into_json()
+-        .unwrap_or_else(|_| panic!("Failed to read json from url: {}", url))
++    let file = File::open(url).unwrap_or_else(|_| panic!("Failed to open local file: {}", url));
++    ureq::serde_json::from_reader(file).unwrap_or_else(|_| panic!("Failed to read json from file: {}", url))
+ }
+ 
+ fn write_to_out<T: DeserializeOwned + Serialize>(value: T, file_name: &str) {
+-- 
+2.54.0
