@@ -60,12 +60,14 @@
         let
           naersk' = pkgs.callPackage inputs.naersk { };
         in
-        {
-          default = (
+        rec {
+          reliquary-archiver-unwrapped = (
 
-            # pkgs.stdenv.mkDerivation
             naersk'.buildPackage (rec {
-              pname = "reliquary-archiver";
+
+              meta.mainProgram = "reliquary-archiver";
+
+              pname = "reliquary-archiver-unwrapped";
 
               src = (
                 # patch before passing src, else naersk will patch on dummy-src instead
@@ -97,13 +99,44 @@
             })
 
           );
+
+          reliquary-archiver-wrapped = (
+            pkgs.writeShellScriptBin "reliquary-archiver" ''
+              if [ "$EUID" -eq 0 ]; then
+                echo "Don't run this as root directly" >>/dev/stderr
+                exit 1
+              fi
+
+              set -x
+
+              exec ${pkgs.systemd}/bin/run0 ${pkgs.libcap}/bin/capsh \
+                --user="$USER" \
+                --caps="cap_net_raw+epi" \
+                --addamb="cap_net_raw" \
+                -- -c "exec ${reliquary-archiver-unwrapped}/bin/reliquary-archiver \"$@\" "
+            ''
+          );
+
+          default = reliquary-archiver-wrapped;
+
+        }
+      );
+
+      apps = forEachSupportedSystem (
+        { pkgs }: {
+          default = {
+            type = "app";
+            program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/reliquary-archiver";
+          };
         }
       );
 
       nixosModules.default = (
         { config, pkgs, ... }: {
           security.wrappers."reliquary-archiver" = {
-            source = "${self.packages.${pkgs.system}.default}/bin/reliquary-archiver";
+            source = "${
+              self.packages.${pkgs.stdenv.hostPlatform.system}.reliquary-archiver-unwrapped
+            }/bin/reliquary-archiver";
             capabilities = "cap_net_raw+ep";
             owner = "root";
             group = "root";

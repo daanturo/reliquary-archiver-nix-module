@@ -6,6 +6,34 @@ Nix packaging for https://github.com/IceDynamix/reliquary-archiver.
 
 Assume that Nix Flakes are [enabled](https://wiki.nixos.org/wiki/Flakes#Enabling_flakes_permanently):
 
+## Standalone command
+
+```sh
+nix run "git+https://github.com/daanturo/reliquary-archiver-nix-module.git" -- --help
+```
+
+For this command, privilege escalation will ask for root permission.  Because
+the
+[operation](https://github.com/IceDynamix/reliquary-archiver#pcap-instructions)
+`sudo setcap CAP_NET_RAW=+ep target/release/reliquary-archiver` cannot be done
+with `nix build`, `capsh` with root permission is used as a workaround to
+temporarily allow packet capturing.
+
+
+To force latest version of upstream `reliquary-archiver`:
+```sh
+git clone https://github.com/daanturo/reliquary-archiver-nix-module
+cd reliquary-archiver-nix-module
+git pull --rebase # optional
+nix flake update --commit-lock-file
+nix run . -- --help
+```
+
+<!-- Alternatively, use the potentially deprecating option `--update-input`: -->
+<!-- ```sh -->
+<!-- nix run "git+https://github.com/daanturo/reliquary-archiver-nix-module.git" --update-input reliquary-archiver --update-input turnbasedgamedata -- --help -->
+<!-- ``` -->
+
 ## flake.nix
 
 In your [system](https://wiki.nixos.org/wiki/NixOS_system_configuration#Defining_NixOS_as_a_flake)'s `flake.nix`:
@@ -14,8 +42,8 @@ In your [system](https://wiki.nixos.org/wiki/NixOS_system_configuration#Defining
 
   # ...other inputs, including "nixpkgs"...
 
-  inputs.reliquary-archiver-nix.url = "git+https://github.com/daanturo/reliquary-archiver-nix-module.git";
-  inputs.reliquary-archiver-nix.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.reliquary-archiver-nix-module.url = "git+https://github.com/daanturo/reliquary-archiver-nix-module.git";
+  inputs.reliquary-archiver-nix-module.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = (
     inputs@{ self, ... }:
@@ -24,26 +52,13 @@ In your [system](https://wiki.nixos.org/wiki/NixOS_system_configuration#Defining
       nixosConfigurations = {
         "hostname" = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
-          modules = [ inputs.reliquary-archiver-nix.nixosModules.default ];
+          modules = [ inputs.reliquary-archiver-nix-module.nixosModules.default ];
         };
       };
     }
   );
-  
+
 }
 ```
 
-## Standalone command
-
-```sh
-# '--recreate-lock-file --update-input': for grabbing the latest git version from https://github.com/IceDynamix/reliquary-archiver
-cp $(nix build "git+https://github.com/daanturo/reliquary-archiver-nix-module.git"#default --no-link --print-out-paths --recreate-lock-file --update-input nixpkgs --update-input reliquary-archiver --update-input turnbasedgamedata)/bin/reliquary-archiver ./reliquary-archiver
-sudo setcap CAP_NET_RAW=+ep ./reliquary-archiver
-```
-
-(Ideally, it should just be:
-```sh
-nix shell "git+https://github.com/daanturo/reliquary-archiver-nix-module.git"#default -c reliquary-archiver -s
-```
-
-But since `setcap` is impossible at the `nix build` step (as of 2026-07), the above 1-line command can't be achieved.)
+Binary will be available at `/run/wrappers/bin/reliquary-archiver` (added to PATH by default on NixOS).

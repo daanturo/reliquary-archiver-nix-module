@@ -1,6 +1,10 @@
-From 41fa653aedf8f8af52eca8b01ba679a5b47311bd Mon Sep 17 00:00:00 2001
+From cb3d8afca173c5afc017734ceb2134f23faef1d3 Mon Sep 17 00:00:00 2001
 Subject: [PATCH] PRE_DOWNLOADED_RESOURCE_DIR
 
+Upstream `reliquary-archiver` includes a `build.rs` that downloads assets at
+build time, which `nix build`'s sandbox disables.  The commit modifies
+`build.rs` such that dynamic downloading is subtituted by using files already
+pulled by nix flake's inputs.
 ---
  build.rs | 15 +++++++--------
  1 file changed, 7 insertions(+), 8 deletions(-)
