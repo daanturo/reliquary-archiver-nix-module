@@ -41,6 +41,7 @@
           openssl
           libpcap
           libcap # setcap
+          sccache
         ])
       );
 
@@ -69,15 +70,7 @@
 
               pname = "reliquary-archiver-unwrapped";
 
-              src = (
-                # patch before passing src, else naersk will patch on dummy-src instead
-                pkgs.applyPatches {
-                  src = inputs.reliquary-archiver.outPath;
-                  patches = [ ./0001-PRE_DOWNLOADED_RESOURCE_DIR.patch ];
-                  name = "reliquary-archiver-patched";
-                }
-              );
-              PRE_DOWNLOADED_RESOURCE_DIR = inputs.turnbasedgamedata.outPath;
+              nativeBuildInputs = (native-build-input-packages pkgs);
 
               # ## build.rs requires internet access, which nix sandbox disallows,
               # ## use "fixed-output derivation", but outputHash ends up changing
@@ -86,9 +79,20 @@
               # outputHashAlgo = "sha256";
               # outputHash = "";
 
-              nativeBuildInputs = (native-build-input-packages pkgs);
+              src = (
+                # patch before passing src, else naersk will patch on dummy-src instead
+                pkgs.applyPatches {
+                  src = inputs.reliquary-archiver.outPath;
+                  patches = [ ./0001-PRE_DOWNLOADED_RESOURCE_DIR.patch ];
+                  name = "reliquary-archiver-patched";
+                }
+              );
 
+              PRE_DOWNLOADED_RESOURCE_DIR = inputs.turnbasedgamedata.outPath;
               RUST_BACKTRACE = 1;
+              # RUSTC_WRAPPER = "${pkgs.sccache}/bin/sccache";
+              # SCCACHE_DIR = "/tmp/.cache/sccache";
+
               # release = false;
 
               # # nix build doesn't have permission for setcap
@@ -100,7 +104,7 @@
 
           );
 
-          reliquary-archiver-wrapped = (
+          reliquary-archiver-capsh = (
             pkgs.writeShellScriptBin "reliquary-archiver" ''
               if [ "$EUID" -eq 0 ]; then
                 echo "Don't run this as root directly" >>/dev/stderr
@@ -117,7 +121,22 @@
             ''
           );
 
-          default = reliquary-archiver-wrapped;
+          default = reliquary-archiver-capsh;
+
+          reliquary-archiver-ro = (
+            # bwrap: a "sandbox" that only makes files read-only
+            # run0: allow CAP_NET_RAW, then use bwrap to restrict
+            # setpriv: run as current user instead of root, use it since:
+            # run0 --user --empower: bwrap: Unexpected capabilities but not setuid, old file caps config?
+            # bwrap: Specifying --uid requires --unshare-user or --userns
+            pkgs.writeShellScriptBin "reliquary-archiver-ro" ''
+              set -x
+              exec ${pkgs.systemd}/bin/run0 \
+                ${pkgs.bubblewrap}/bin/bwrap --dev /dev --ro-bind / / --cap-add CAP_NET_RAW -- \
+                ${pkgs.util-linux}/bin/setpriv --reuid=$(id -u) --regid=$(id -g) --clear-groups --inh-caps +net_raw --ambient-caps +net_raw -- \
+                ${reliquary-archiver-unwrapped}/bin/reliquary-archiver "$@"
+            ''
+          );
 
         }
       );
@@ -127,6 +146,12 @@
           default = {
             type = "app";
             program = "${self.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/reliquary-archiver";
+          };
+          ro = {
+            type = "app";
+            program = "${
+              self.packages.${pkgs.stdenv.hostPlatform.system}.reliquary-archiver-ro
+            }/bin/reliquary-archiver-ro";
           };
         }
       );
@@ -141,6 +166,9 @@
             owner = "root";
             group = "root";
           };
+          environment.systemPackages = [
+            self.packages.${pkgs.stdenv.hostPlatform.system}.reliquary-archiver-ro
+          ];
         }
       );
 

@@ -4,9 +4,18 @@ Nix packaging for https://github.com/IceDynamix/reliquary-archiver.
 
 # Usage
 
-Assume that Nix Flakes are [enabled](https://wiki.nixos.org/wiki/Flakes#Enabling_flakes_permanently):
+Assume that Nix Flakes are [enabled](https://wiki.nixos.org/wiki/Flakes#Enabling_flakes_permanently).
+
+## dev shell
+
+This flake provides a `nix`
+[develop](https://nix.dev/manual/nix/stable/command-ref/new-cli/nix3-develop.html)
+shell for building `reliquary-archiver` on NixOS.
 
 ## Standalone command
+
+To run `reliquary-archiver` without installing (but building still happens
+locally, of course):
 
 ```sh
 nix run "git+https://github.com/daanturo/reliquary-archiver-nix-module.git" -- --help
