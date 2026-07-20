@@ -1,18 +1,12 @@
 {
 
-  inputs = {
-    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0"; # latest stable
+  inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0"; # latest stable
 
-    naersk.url = "github:nix-community/naersk";
-    naersk.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.reliquary-archiver.url = "git+https://github.com/IceDynamix/reliquary-archiver.git";
+  inputs.reliquary-archiver.flake = false;
 
-    reliquary-archiver.url = "git+https://github.com/IceDynamix/reliquary-archiver.git";
-    reliquary-archiver.flake = false;
-
-    turnbasedgamedata.url = "git+https://gitlab.com/Dimbreath/turnbasedgamedata.git";
-    turnbasedgamedata.flake = false;
-
-  };
+  inputs.turnbasedgamedata.url = "git+https://gitlab.com/Dimbreath/turnbasedgamedata.git";
+  inputs.turnbasedgamedata.flake = false;
 
   # nixConfig.sandbox = "relaxed"; # cannot set as untrusted user anyway
 
@@ -36,7 +30,7 @@
         pkgs:
         (with pkgs; [
           pkg-config
-          wayland
+          wayland.dev # The file `wayland-client.pc` needs to be installed and the PKG_CONFIG_PATH environment variable must contain its parent directory
           cargo
           openssl
           libpcap
@@ -59,49 +53,60 @@
       packages = forEachSupportedSystem (
         { pkgs }:
         let
-          naersk' = pkgs.callPackage inputs.naersk { };
         in
         rec {
           reliquary-archiver-unwrapped = (
+            pkgs.callPackage (
+              {
+                rustPlatform,
+                ...
+              }:
+              rustPlatform.buildRustPackage (finalAttrs: rec {
 
-            naersk'.buildPackage (rec {
+                pname = "reliquary-archiver-unwrapped";
+                name = pname;
 
-              meta.mainProgram = "reliquary-archiver";
+                nativeBuildInputs = (native-build-input-packages pkgs);
 
-              pname = "reliquary-archiver-unwrapped";
+                # ## build.rs requires internet access, which nix sandbox disallows,
+                # ## use "fixed-output derivation", but outputHash ends up changing
+                # ## differently every time running
+                # outputHashMode = "recursive";
+                # outputHash = "";
 
-              nativeBuildInputs = (native-build-input-packages pkgs);
+                cargoLock.lockFile = "${inputs.reliquary-archiver.outPath}/Cargo.lock";
+                cargoLock.allowBuiltinFetchGit = true;
 
-              # ## build.rs requires internet access, which nix sandbox disallows,
-              # ## use "fixed-output derivation", but outputHash ends up changing
-              # ## differently every time running
-              # outputHashMode = "recursive";
-              # outputHashAlgo = "sha256";
-              # outputHash = "";
+                src = (
+                  # patch before passing src, else naersk will patch on dummy-src instead
+                  pkgs.applyPatches {
+                    src = inputs.reliquary-archiver.outPath;
+                    patches = [ ./0001-PRE_DOWNLOADED_RESOURCE_DIR.patch ];
+                    name = "reliquary-archiver-patched";
+                  }
+                );
 
-              src = (
-                # patch before passing src, else naersk will patch on dummy-src instead
-                pkgs.applyPatches {
-                  src = inputs.reliquary-archiver.outPath;
-                  patches = [ ./0001-PRE_DOWNLOADED_RESOURCE_DIR.patch ];
-                  name = "reliquary-archiver-patched";
-                }
-              );
+                # env
+                PRE_DOWNLOADED_RESOURCE_DIR = inputs.turnbasedgamedata.outPath;
+                RUST_BACKTRACE = 1;
+                # RUSTC_WRAPPER = "${pkgs.sccache}/bin/sccache";
+                # SCCACHE_DIR = "/tmp/.cache/sccache";
+                PKG_CONFIG_PATH = (
+                  builtins.concatStringsSep ":" (map (pkg: "${pkg}/lib/pkgconfig") nativeBuildInputs)
+                );
 
-              PRE_DOWNLOADED_RESOURCE_DIR = inputs.turnbasedgamedata.outPath;
-              RUST_BACKTRACE = 1;
-              # RUSTC_WRAPPER = "${pkgs.sccache}/bin/sccache";
-              # SCCACHE_DIR = "/tmp/.cache/sccache";
+                # release = false;
 
-              # release = false;
+                # # nix build doesn't have permission for setcap
+                # postInstall = ''
+                #   setcap CAP_NET_RAW=+ep $out/bin/reliquary-archiver
+                # '';
 
-              # # nix build doesn't have permission for setcap
-              # postInstall = ''
-              #   setcap CAP_NET_RAW=+ep $out/bin/reliquary-archiver
-              # '';
+                meta.mainProgram = "reliquary-archiver";
 
-            })
+              })
 
+            ) { }
           );
 
           reliquary-archiver-capsh = (
@@ -132,7 +137,9 @@
             pkgs.writeShellScriptBin "reliquary-archiver-ro" ''
               set -x
               exec ${pkgs.systemd}/bin/run0 \
-                ${pkgs.bubblewrap}/bin/bwrap --dev /dev --ro-bind / / --cap-add CAP_NET_RAW -- \
+                ${pkgs.bubblewrap}/bin/bwrap --dev /dev --ro-bind / / --cap-add CAP_NET_RAW \
+                --proc /proc --new-session --unshare-pid --unshare-ipc --unshare-uts --tmpfs /tmp --tmpfs /run --clearenv --tmpfs "$HOME" \
+                -- \
                 ${pkgs.util-linux}/bin/setpriv --reuid=$(id -u) --regid=$(id -g) --clear-groups --inh-caps +net_raw --ambient-caps +net_raw -- \
                 ${reliquary-archiver-unwrapped}/bin/reliquary-archiver "$@"
             ''
