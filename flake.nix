@@ -137,10 +137,9 @@
             pkgs.writeShellScriptBin "reliquary-archiver-ro" ''
               set -x
               ${pkgs.systemd}/bin/run0 \
-                ${pkgs.bubblewrap}/bin/bwrap --ro-bind / / --dev /dev --clearenv \
+                ${pkgs.bubblewrap}/bin/bwrap --tmpfs / --dir /nix --ro-bind /nix/store /nix/store --dev /dev --clearenv \
                 --cap-drop ALL --cap-add CAP_SETUID --cap-add CAP_SETGID --cap-add CAP_NET_RAW \
                 --new-session --unshare-pid --unshare-ipc --unshare-uts --share-net --unshare-cgroup-try \
-                --tmpfs "$HOME" --tmpfs /tmp --tmpfs /run --ro-bind /run/current-system/sw/bin/ /run/current-system/sw/bin/ \
                 -- \
                 ${pkgs.util-linux}/bin/setpriv --reuid=$(id -u) --regid=$(id -g) --clear-groups --inh-caps +net_raw --ambient-caps +net_raw -- \
                 ${reliquary-archiver-unwrapped}/bin/reliquary-archiver "$@"
