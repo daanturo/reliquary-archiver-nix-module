@@ -2,12 +2,12 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1787204541,
-        "narHash": "sha256-OURZPknrTjQrlNyxPdqzyqmU/81Wes1CUP/Ft1Rv/YI=",
-        "rev": "5880666fd9eb563038431edb35c2d0aa595884e6",
-        "revCount": 1012402,
+        "lastModified": 1787848966,
+        "narHash": "sha256-7gDpu5hpq0rOYnYMcOWqSzquK4HA/xU8Xf3CjUBOOJA=",
+        "rev": "d57af924f160a5084293c71c2043f058bd1cdb60",
+        "revCount": 1012829,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1012402%2Brev-5880666fd9eb563038431edb35c2d0aa595884e6/01a0256c-18b4-7bd1-b5b9-ce272b81c195/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1012829%2Brev-d57af924f160a5084293c71c2043f058bd1cdb60/01a04a37-59da-70b2-b771-7d62e1138e28/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -17,11 +17,11 @@
     "reliquary-archiver": {
       "flake": false,
       "locked": {
-        "lastModified": 1785043610,
-        "narHash": "sha256-JcsA3oLwYh4Zkv7iYWTeJ+voCUIxkNJMWixoJ2gsX2E=",
+        "lastModified": 1787976733,
+        "narHash": "sha256-nhq938A2WY1UJ7pjDO/uJmGPduCexKoNY21sqY+Gh7I=",
         "ref": "refs/heads/main",
-        "rev": "62585d74bad03944cf5b1ec3f5cc91cfae5bb899",
-        "revCount": 331,
+        "rev": "cb109f17a4a15b7604cfe9d078a8735e7735cd25",
+        "revCount": 335,
         "type": "git",
         "url": "https://github.com/IceDynamix/reliquary-archiver.git"
       },
@@ -40,11 +40,11 @@
     "turnbasedgamedata": {
       "flake": false,
       "locked": {
-        "lastModified": 1786967034,
-        "narHash": "sha256-ptUbS9F9cm1F3Bc1QhdSmpSGieKrcD2mTe+hAgTiUHY=",
+        "lastModified": 1787907326,
+        "narHash": "sha256-kBYrBE0r1trhuK4ga+QcugeNcau9nd6hqjeRuRSzxXk=",
         "ref": "refs/heads/main",
-        "rev": "b11066beacc4de454b625fafc7ea3dd540c5bbf3",
-        "revCount": 92,
+        "rev": "014e33e2404f8cd668bf06fc2ea6db53b6bc3992",
+        "revCount": 97,
         "type": "git",
         "url": "https://gitlab.com/Dimbreath/turnbasedgamedata.git"
       },
