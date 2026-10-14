@@ -15,6 +15,11 @@ jobs:
       - name: Install Determinate Nix
         uses: DeterminateSystems/determinate-nix-action@v3
 
+      - uses: cachix/cachix-action@v17
+        with:
+          name: daanturo
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
       # - name: Update flake.lock
       #   uses: DeterminateSystems/update-flake-lock@main
       #   with:
@@ -26,3 +31,7 @@ jobs:
           git config --global user.name     "github-actions[bot]"
           nix flake update --commit-lock-file
           git push
+
+      - name: nix build, push cache implicitly
+        run: |
+          nix build

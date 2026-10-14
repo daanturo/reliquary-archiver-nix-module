@@ -2,10 +2,10 @@
 
   inputs.nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0"; # latest stable
 
-  inputs.reliquary-archiver.url = "git+https://github.com/IceDynamix/reliquary-archiver.git";
+  inputs.reliquary-archiver.url = "git+https://github.com/IceDynamix/reliquary-archiver.git?shallow=1";
   inputs.reliquary-archiver.flake = false;
 
-  inputs.turnbasedgamedata.url = "git+https://gitlab.com/Dimbreath/turnbasedgamedata.git";
+  inputs.turnbasedgamedata.url = "git+https://gitlab.com/Dimbreath/turnbasedgamedata.git?shallow=1";
   inputs.turnbasedgamedata.flake = false;
 
   # nixConfig.sandbox = "relaxed"; # cannot set as untrusted user anyway
