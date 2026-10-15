@@ -4,7 +4,28 @@ Nix packaging for https://github.com/IceDynamix/reliquary-archiver.
 
 # Usage
 
-Assume that Nix Flakes are [enabled](https://wiki.nixos.org/wiki/Flakes#Enabling_flakes_permanently).
+Assume that Nix Flakes are
+[enabled](https://wiki.nixos.org/wiki/Flakes#Enabling_flakes_permanently).
+
+This repository uses Github Actions to build and push binary cache to
+[Cachix](https://www.cachix.org/).  Optionally to avoid building locally and
+pull pre-built binary(s) instead, you can first configure NixOS to use
+substituters in your configuration:
+
+```nix
+{
+
+  nix.settings.substituters = [
+	# ... others ...
+    "https://daanturo.cachix.org?priority=42" # prioritize cache.nixos.org (40) and other cachix (41), use this last
+  ];
+  nix.settings.trusted-public-keys = [
+    # ... others ...
+    "daanturo.cachix.org-1:1sWdLYofZ2zEBvCWl2LWvV/jvPREWc3Gx70jEy1rpBA="
+  ];
+
+}
+```
 
 ## dev shell
 
@@ -14,8 +35,8 @@ shell for building `reliquary-archiver` on NixOS.
 
 ## Standalone command
 
-To run `reliquary-archiver` without installing (but building still happens
-locally, of course):
+To run `reliquary-archiver` without installing (but without configured binary
+cache as mentioned above, building still happens locally, of course):
 
 ```sh
 nix run "git+https://github.com/daanturo/reliquary-archiver-nix-module.git" -- --help
@@ -43,16 +64,19 @@ nix run . -- --help
 <!-- nix run "git+https://github.com/daanturo/reliquary-archiver-nix-module.git" --update-input reliquary-archiver --update-input turnbasedgamedata -- --help -->
 <!-- ``` -->
 
-## flake.nix
+## Declarative configuration
 
-In your [system](https://wiki.nixos.org/wiki/NixOS_system_configuration#Defining_NixOS_as_a_flake)'s `flake.nix`:
+In your
+[system](https://wiki.nixos.org/wiki/NixOS_system_configuration#Defining_NixOS_as_a_flake)'s
+`flake.nix`:
+
 ```nix
 {
 
   # ...other inputs, including "nixpkgs"...
 
   inputs.reliquary-archiver-nix-module.url = "git+https://github.com/daanturo/reliquary-archiver-nix-module.git";
-  inputs.reliquary-archiver-nix-module.inputs.nixpkgs.follows = "nixpkgs";
+  # inputs.reliquary-archiver-nix-module.inputs.nixpkgs.follows = "nixpkgs";  # optional to reduce inputs size, but do not use this line if you configure cachix as it's extremely likely to cause cache misses
 
   outputs = (
     inputs@{ self, ... }:
@@ -70,7 +94,8 @@ In your [system](https://wiki.nixos.org/wiki/NixOS_system_configuration#Defining
 }
 ```
 
-Binary will be available at `/run/wrappers/bin/reliquary-archiver` (added to PATH by default on NixOS).
+Binary will be available at `/run/wrappers/bin/reliquary-archiver` (added to
+PATH by default on NixOS).
 
 
 ## read-only version
@@ -78,7 +103,10 @@ Binary will be available at `/run/wrappers/bin/reliquary-archiver` (added to PAT
 Version bounded by a pseudo-sandbox:
 
 ```sh
+# one-time execution
 nix run "git+https://github.com/daanturo/reliquary-archiver-nix-module.git"#ro -- --help
+# persist to nix profile
+nix profile add "git+https://github.com/daanturo/reliquary-archiver-nix-module.git"#reliquary-archiver-ro
 ```
 
 By using `bwrap`, normally, the above won't be able to write to any files, nor
