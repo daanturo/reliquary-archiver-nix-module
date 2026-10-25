@@ -2,12 +2,12 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1792030654,
-        "narHash": "sha256-OaQwAtPMTjQiY2sT/2/62UbSPhzP/0aDnWzMm/NCiUw=",
-        "rev": "26f4107e47e3ad0ffd0db220469ba83b6f6d96e8",
-        "revCount": 1016276,
+        "lastModified": 1792615934,
+        "narHash": "sha256-MlvRfa1O5Cqc2/a+gG+l9TSuowEoCKCmrJ1d9oAVm0I=",
+        "rev": "da6dc0e7b26060f2f71ce3ef7088fb56ee44fa36",
+        "revCount": 1016691,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1016276%2Brev-26f4107e47e3ad0ffd0db220469ba83b6f6d96e8/01a1433c-549b-7ac2-81f6-cad5d560ff29/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1016691%2Brev-da6dc0e7b26060f2f71ce3ef7088fb56ee44fa36/01a164b3-0756-7f91-92bf-32d04b10d836/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -41,10 +41,10 @@
     "turnbasedgamedata": {
       "flake": false,
       "locked": {
-        "lastModified": 1791536787,
-        "narHash": "sha256-Zz2K0yzu30ltzd+NDE8A5TAxU9S30LfTb0qjQEoK8U8=",
+        "lastModified": 1792396536,
+        "narHash": "sha256-DtMhsI2mkBTA4rw3H0AlSMmggm1DxOcs2frSRVkgr7I=",
         "ref": "refs/heads/main",
-        "rev": "312b4597691e0a29cf9828a15b592757dba86949",
+        "rev": "74a7b96fba32f00cf495a5c00b0311bd02207aaf",
         "shallow": true,
         "type": "git",
         "url": "https://gitlab.com/Dimbreath/turnbasedgamedata.git"
