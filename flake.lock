@@ -2,12 +2,12 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1793294725,
-        "narHash": "sha256-loLMnbbS4KhmG2ln9EY6f0YMNCA273Yx02oWYQ9IMeE=",
-        "rev": "6f06d204d8f2d8761d9da78778745974a3216381",
-        "revCount": 1017455,
+        "lastModified": 1793865203,
+        "narHash": "sha256-/cpdPHaySDIyCgZI6EWngiM6jK3YLUNzv1b7lTzy6Bk=",
+        "rev": "c56a87d8e41ce69bd2af57eb35dcc117a9dfca33",
+        "revCount": 1017918,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1017455%2Brev-6f06d204d8f2d8761d9da78778745974a3216381/01a18de2-6c7d-72b1-98f5-c8cac00ed017/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2605.1017918%2Brev-c56a87d8e41ce69bd2af57eb35dcc117a9dfca33/01a1b1ee-a145-7681-84bf-8ecf54b62998/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -17,10 +17,10 @@
     "reliquary-archiver": {
       "flake": false,
       "locked": {
-        "lastModified": 1790648834,
-        "narHash": "sha256-gQix/em+QUvPov5OnZzkFaohJxv7kudevDBIH+3LDlg=",
+        "lastModified": 1794104858,
+        "narHash": "sha256-Qm6033GKEaRFP1olAcT9QFsO8pgOUIvZkGtuY5mJWu8=",
         "ref": "refs/heads/main",
-        "rev": "5e50dcbf980afe77463f9ad357001f2afa3c66fb",
+        "rev": "00f7f77ce83063e9440f33f81e867c0da76bb53e",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/IceDynamix/reliquary-archiver.git"
