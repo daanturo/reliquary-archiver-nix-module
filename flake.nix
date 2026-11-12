@@ -140,6 +140,7 @@
                 ${pkgs.bubblewrap}/bin/bwrap --tmpfs / --dir /nix --ro-bind /nix/store /nix/store --dev /dev --clearenv \
                 --cap-drop ALL --cap-add CAP_SETUID --cap-add CAP_SETGID --cap-add CAP_NET_RAW \
                 --new-session --unshare-pid --unshare-ipc --unshare-uts --share-net --unshare-cgroup-try \
+                --bind-try ~/Downloads ~/Downloads \
                 -- \
                 ${pkgs.util-linux}/bin/setpriv --reuid=$(id -u) --regid=$(id -g) --clear-groups --inh-caps +net_raw --ambient-caps +net_raw -- \
                 ${reliquary-archiver-unwrapped}/bin/reliquary-archiver "$@"

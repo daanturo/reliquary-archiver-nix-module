@@ -1,50 +1,51 @@
-From cb3d8afca173c5afc017734ceb2134f23faef1d3 Mon Sep 17 00:00:00 2001
+From 8503966b05768169018b710dc1c66facfd4c243e Mon Sep 17 00:00:00 2001
 Subject: [PATCH] PRE_DOWNLOADED_RESOURCE_DIR
 
 Upstream `reliquary-archiver` includes a `build.rs` that downloads assets at
-build time, which `nix build`'s sandbox disables.  The commit modifies
+build time, which `nix build`'s sandbox disables.  This commit modifies
 `build.rs` such that dynamic downloading is subtituted by using files already
 pulled by nix flake's inputs.
 ---
- build.rs | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ build.rs | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/build.rs b/build.rs
-index 5f1b4fb..f8cbb5f 100644
+index cea453d..b864dc2 100644
 --- a/build.rs
 +++ b/build.rs
-@@ -111,9 +111,10 @@ fn save_text_map(hashes: &HashSet<TextMapEntry>, language: &str) {
+@@ -113,8 +113,10 @@ fn save_text_map(hashes: &HashSet<TextMapEntry>, language: &str) {
      let hashes: HashSet<String> = hashes.iter().map(|k| k.Hash.to_string()).collect();
  
      let file_name = format!("TextMap{language}.json");
 +    let base_dir = env::var("PRE_DOWNLOADED_RESOURCE_DIR").expect("PRE_DOWNLOADED_RESOURCE_DIR environment variable must be set");
  
--    let text_map_url = format!("{BASE_RESOURCE_URL}/TextMap/{file_name}");
--    let text_map: HashMap<String, String> = download_as_json::<HashMap<String, String>>(&text_map_url)
+-    let text_map: HashMap<String, String> = download_as_json::<HashMap<String, String>>(&format!("TextMap/{file_name}"))
 +    let text_map_path = format!("{base_dir}/TextMap/{file_name}");
 +    let text_map: HashMap<String, String> = download_as_json::<HashMap<String, String>>(&text_map_path)
          .into_iter()
          .filter(|(k, _)| hashes.contains(k))
          .collect();
-@@ -126,15 +127,13 @@ fn resource_url<T: ResourceMap>() -> String {
- }
+@@ -128,6 +130,9 @@ fn resource_path<T: ResourceMap>() -> String {
  
- fn resource_url_of(name: &str) -> String {
--    format!("{BASE_RESOURCE_URL}/ExcelOutput/{name}")
+ fn resource_path_of(name: &str) -> String {
+     format!("ExcelOutput/{name}")
++    ;;	 
 +    let base_dir = env::var("PRE_DOWNLOADED_RESOURCE_DIR").expect("PRE_DOWNLOADED_RESOURCE_DIR environment variable must be set");
-+    format!("{base_dir}/ExcelOutput/{name}")
++    return format!("{base_dir}/ExcelOutput/{name}");
  }
  
- fn download_as_json<T: DeserializeOwned>(url: &str) -> T {
--    ureq::get(url)
--        .call()
--        .unwrap()
--        .into_json()
--        .unwrap_or_else(|_| panic!("Failed to read json from url: {}", url))
-+    let file = File::open(url).unwrap_or_else(|_| panic!("Failed to open local file: {}", url));
-+    ureq::serde_json::from_reader(file).unwrap_or_else(|_| panic!("Failed to read json from file: {}", url))
- }
+ /// Downloads a file from the game data repo, given its path within the repo.
+@@ -135,6 +139,10 @@ fn resource_path_of(name: &str) -> String {
+ /// Tries GitLab through glab (authenticated, avoids rate limits), then GitLab
+ /// unauthenticated, then the GitHub mirror.
+ fn download_as_json<T: DeserializeOwned>(path: &str) -> T {
++
++    let file = File::open(path).unwrap_or_else(|_| panic!("Failed to open local file: {}", path));
++    return ureq::serde_json::from_reader(file).unwrap_or_else(|_| panic!("Failed to read json from file: {}", path));
++
+     let gitlab_api_path = format!("{GITLAB_FILES_API_PATH}/{}/raw?ref=main", path.replace('/', "%2F"));
  
- fn write_to_out<T: DeserializeOwned + Serialize>(value: T, file_name: &str) {
+     if let Some(value) = download_with_glab(&gitlab_api_path) {
 -- 
-2.54.0
+2.56.0
+

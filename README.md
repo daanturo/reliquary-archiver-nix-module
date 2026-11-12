@@ -110,7 +110,7 @@ nix profile add "git+https://github.com/daanturo/reliquary-archiver-nix-module.g
 ```
 
 By using `bwrap`, normally, the above won't be able to write to any files, nor
-read from any such as .pcap files, hence as of 2026-07, is only useful for
-`--stream` mode.  While attempting to lessen the damage of attacks such as
-supply-chain & MITM, it DOES NOT guarantee full protection against them.  See
+read from any such as .pcap files outside of ~/Downloads.  While attempting to
+lessen the damage of attacks such as supply-chain & MITM, it DOES NOT guarantee
+full protection against them.  See
 [flake.nix](./flake.nix)`/reliquary-archiver-ro` for the implementation.
